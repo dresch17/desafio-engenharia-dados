@@ -16,5 +16,21 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./database:/docker-entrypoint-initdb.d
 
+  spark:
+    image: apache/spark:3.5.9-scala2.12-java17-python3-ubuntu
+    container_name: desafio_spark
+
+    depends_on:
+      - postgres
+
+    environment:
+      SPARK_SUBMIT_OPTS: "-Divy.cache.dir=/tmp/.ivy2/cache -Divy.home=/tmp/.ivy2"
+
+    volumes:
+      - ./src:/opt/spark/work-dir/src
+      - ./output:/opt/spark/work-dir/output
+
+    command: ["sleep", "infinity"]
+
 volumes:
   postgres_data:
