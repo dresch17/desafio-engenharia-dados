@@ -17,7 +17,11 @@ services:
       - ./database:/docker-entrypoint-initdb.d
 
   spark:
-    image: apache/spark:3.5.9-scala2.12-java17-python3-ubuntu
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
+
+    image: desafio-spark
     container_name: desafio_spark
 
     depends_on:
@@ -29,6 +33,7 @@ services:
     volumes:
       - ./src:/opt/spark/work-dir/src
       - ./output:/opt/spark/work-dir/output
+      - ./tests:/opt/spark/work-dir/tests
 
     command: ["sleep", "infinity"]
 

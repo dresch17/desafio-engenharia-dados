@@ -1,3 +1,7 @@
+import os
+import glob
+import shutil
+
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
 
@@ -113,6 +117,47 @@ print(
 )
 
 df_movimento_flat.printSchema()
+
+# Caminhos de saída
+diretorio_temporario = "/opt/spark/work-dir/output/movimento_flat_temp"
+arquivo_final = "/opt/spark/work-dir/output/movimento_flat.csv"
+
+
+# Remove o arquivo final anterior, caso exista
+if os.path.exists(arquivo_final):
+    os.remove(arquivo_final)
+
+
+# Spark grava o resultado em um diretório
+df_movimento_flat.coalesce(1).write \
+    .mode("overwrite") \
+    .option("header", "true") \
+    .option("sep", ";") \
+    .csv(diretorio_temporario)
+
+
+# Localiza o arquivo CSV criado pelo Spark
+arquivos_csv = glob.glob(
+    os.path.join(diretorio_temporario, "part-*.csv")
+)
+
+
+# Move o arquivo gerado para o nome definitivo
+shutil.move(
+    arquivos_csv[0],
+    arquivo_final
+)
+
+
+# Remove o diretório temporário e arquivos auxiliares
+shutil.rmtree(diretorio_temporario)
+
+
+print(
+    "\nArquivo gerado com sucesso:",
+    arquivo_final
+)
+
 
 # Finaliza a sessão
 spark.stop()
