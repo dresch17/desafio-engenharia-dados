@@ -1,6 +1,7 @@
 import os
 import glob
 import shutil
+import sys
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
@@ -111,16 +112,41 @@ df_movimento_flat.show(
     truncate=False
 )
 
+quantidade_registros = df_movimento_flat.count()
+
 print(
     "Quantidade de registros:",
-    df_movimento_flat.count()
+    quantidade_registros
 )
 
 df_movimento_flat.printSchema()
 
-# Caminhos de saída
-diretorio_temporario = "/opt/spark/work-dir/output/movimento_flat_temp"
-arquivo_final = "/opt/spark/work-dir/output/movimento_flat.csv"
+# Define o diretório de saída.
+# Caso não seja informado, utiliza "output" como padrão.
+diretorio_saida = sys.argv[1] if len(sys.argv) > 1 else "output"
+
+# Como o ETL executa dentro do container, o diretório informado
+# é considerado relativo ao diretório de trabalho do Spark.
+caminho_saida = os.path.join(
+    "/opt/spark/work-dir",
+    diretorio_saida
+)
+
+diretorio_temporario = os.path.join(
+    caminho_saida,
+    "movimento_flat_temp"
+)
+
+arquivo_final = os.path.join(
+    caminho_saida,
+    "movimento_flat.csv"
+)
+
+# Garante que o diretório de saída exista
+os.makedirs(
+    caminho_saida,
+    exist_ok=True
+)
 
 
 # Remove o arquivo final anterior, caso exista
@@ -153,10 +179,12 @@ shutil.move(
 shutil.rmtree(diretorio_temporario)
 
 
-print(
-    "\nArquivo gerado com sucesso:",
-    arquivo_final
-)
+print("\n")
+print("=" * 60)
+print("ETL FINALIZADO COM SUCESSO")
+print(f"Arquivo gerado: {arquivo_final}")
+print(f"Quantidade de registros: {quantidade_registros}")
+print("=" * 60)
 
 
 # Finaliza a sessão

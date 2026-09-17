@@ -16,6 +16,13 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./database:/docker-entrypoint-initdb.d
 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cooperativa"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+
   spark:
     build:
       context: .
@@ -31,11 +38,32 @@ services:
       SPARK_SUBMIT_OPTS: "-Divy.cache.dir=/tmp/.ivy2/cache -Divy.home=/tmp/.ivy2"
 
     volumes:
-      - ./src:/opt/spark/work-dir/src
-      - ./output:/opt/spark/work-dir/output
-      - ./tests:/opt/spark/work-dir/tests
+      - ./:/opt/spark/work-dir
 
     command: ["sleep", "infinity"]
+
+  etl:
+    image: desafio-spark
+    container_name: desafio_etl
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    environment:
+      SPARK_SUBMIT_OPTS: "-Divy.cache.dir=/tmp/.ivy2/cache -Divy.home=/tmp/.ivy2"
+
+    volumes:
+      - ./:/opt/spark/work-dir
+
+    command:
+      [
+        "/opt/spark/bin/spark-submit",
+        "--packages",
+        "org.postgresql:postgresql:42.7.7",
+        "/opt/spark/work-dir/src/etl.py",
+        "output"
+      ]
 
 volumes:
   postgres_data:
