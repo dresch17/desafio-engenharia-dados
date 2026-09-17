@@ -342,9 +342,8 @@ Não é necessário instalar PostgreSQL, Java, Apache Spark ou Python localmente
 
 ```bash
 
-git clone <URL_DO_REPOSITORIO>
-
-cd <NOME_DO_REPOSITORIO>
+git clone https://github.com/dresch17/desafio-engenharia-dados.git
+cd desafio-engenharia-dados
 
 ```
 
