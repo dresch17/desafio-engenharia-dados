@@ -162,7 +162,7 @@ Principais campos:
 
 ├── database/
 
-│   ├── 01_create_tables.sql
+│   ├── 01_create_table.sql
 
 │   └── 02_insert_data.sql
 
@@ -220,7 +220,7 @@ Os scripts responsáveis pela criação e carga estão disponíveis em:
 
 ```text
 
-database/01_create_tables.sql
+database/01_create_table.sql
 
 database/02_insert_data.sql
 
